@@ -12,12 +12,8 @@ const groupSchema = new Schema({
         required: true
     },
     owner: {
-        type: String,
-        required: true
-    },
-    ownerId: {
-        type: String,
-        required: true
+        type: Schema.Types.ObjectId,
+        ref: "User"
     },
     time: {
         type: String
@@ -39,7 +35,7 @@ const groupSchema = new Schema({
     }],
     events: [{
         type: Schema.Types.ObjectId,
-        red: "Event"
+        ref: "Event"
     }]
 })
 
