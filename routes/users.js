@@ -1,5 +1,6 @@
 const express = require('express');
 const {
+    getUsers,
     getMe,
     registerUser,
     loginUser
@@ -8,6 +9,8 @@ const {
 const router = express();
 
 const { protect } = require('../middleware/auth');
+
+router.get('/', getUsers);
 
 router.get('/me', protect, getMe);
 

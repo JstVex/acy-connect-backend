@@ -3,7 +3,13 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const asyncHandler = require('express-async-handler');
 
-// get all users
+// get all user
+const getUsers = asyncHandler(async (req, res) => {
+    const users = await User.find({});
+    res.status(200).json(users);
+})
+
+// get current user
 const getMe = asyncHandler(async (req, res) => {
     const { _id, name, email } = await User.findById(req.user.id);
     res.status(200).json({
@@ -76,6 +82,7 @@ const generateToken = (id) => {
 }
 
 module.exports = {
+    getUsers,
     getMe,
     registerUser,
     loginUser
