@@ -11,12 +11,14 @@ const getUsers = asyncHandler(async (req, res) => {
 
 // get current user
 const getMe = asyncHandler(async (req, res) => {
-    const { _id, name, email } = await User.findById(req.user.id);
-    res.status(200).json({
-        id: _id,
-        name,
-        email
-    });
+    // const { _id, name, email, image, fblink, hobbies, activeDay, groups } = await User.findById(req.user.id);
+    const user = await User.findById(req.user.id).populate('groups');
+    // res.status(200).json({
+    //     id: _id,
+    //     name,
+    //     email
+    // });
+    res.status(200).json(user);
 })
 
 // register a new user 
@@ -28,7 +30,7 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new Error('Please add all the fields');
     }
 
-    // checking is user already exists
+    // checking if user already exists
     const userExists = await User.findOne({ email })
 
     if (userExists) {
