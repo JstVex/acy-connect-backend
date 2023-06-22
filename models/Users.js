@@ -27,7 +27,11 @@ const userSchema = new Schema({
     },
     activeDay: {
         type: String
-    }
+    },
+    groups: [{
+        type: Schema.Types.ObjectId,
+        ref: "Group"
+    }]
 }, {
     timestamps: true
 })
