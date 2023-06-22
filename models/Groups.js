@@ -39,4 +39,12 @@ const groupSchema = new Schema({
     }]
 })
 
+// middleware to automatically add the owner to the members array
+groupSchema.pre('save', async function (next) {
+    if (this.isNew) {
+        this.members.push(this.owner);
+    }
+    next();
+});
+
 module.exports = mongoose.model('Group', groupSchema);
