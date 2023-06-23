@@ -3,10 +3,22 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const asyncHandler = require('express-async-handler');
 
-// get all user
+// get all users
 const getUsers = asyncHandler(async (req, res) => {
     const users = await User.find({});
     res.status(200).json(users);
+})
+
+// get all users except current one
+const getUsersExceptCurrent = asyncHandler(async (req, res) => {
+    const currentUser = req.query.userId;
+
+    try {
+        const users = await User.find(({ _id: { $ne: currentUser } }));
+        res.status(200).json(users);
+    } catch (error) {
+        res.status(400).json({ error: error.message })
+    }
 })
 
 // get current user
@@ -76,6 +88,30 @@ const loginUser = asyncHandler(async (req, res) => {
     res.json({ message: 'Login User' })
 });
 
+// update user's profile information
+const updateUser = asyncHandler(async (req, res) => {
+    const { profile } = req.body;
+
+    try {
+        const updatedUser = await User.findOneAndUpdate({
+            email: profile.email
+        }, {
+            name: profile.name,
+            image: profile.image,
+            bio: profile.bio,
+            fblink: profile.fblink,
+            hobbies: profile.hobbies,
+            activeDay: profile.activeDay
+        }, {
+            new: true
+        })
+
+        res.status(200).json(updatedUser)
+    } catch (error) {
+        res.status(400).json({ error: error.message })
+    }
+})
+
 // generating json web token
 const generateToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -85,7 +121,9 @@ const generateToken = (id) => {
 
 module.exports = {
     getUsers,
+    getUsersExceptCurrent,
     getMe,
     registerUser,
-    loginUser
+    loginUser,
+    updateUser
 }
