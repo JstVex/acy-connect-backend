@@ -19,6 +19,9 @@ const userSchema = new Schema({
     image: {
         type: String
     },
+    bio: {
+        type: String
+    },
     fblink: {
         type: String
     },
@@ -31,6 +34,10 @@ const userSchema = new Schema({
     groups: [{
         type: Schema.Types.ObjectId,
         ref: "Group"
+    }],
+    connections: [{
+        type: Schema.Types.ObjectId,
+        ref: "Connection"
     }]
 }, {
     timestamps: true
