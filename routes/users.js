@@ -2,7 +2,9 @@ const express = require('express');
 const {
     getUsers,
     getUsersExceptCurrent,
+    getUsersNotConnected,
     getMe,
+    getUser,
     registerUser,
     loginUser,
     updateUser
@@ -16,7 +18,11 @@ router.get('/', getUsers);
 
 router.get('/exceptcurrent', getUsersExceptCurrent);
 
+router.get('/notconnect', getUsersNotConnected);
+
 router.get('/me', protect, getMe);
+
+router.get('/:userId', getUser);
 
 router.post('/', registerUser);
 
