@@ -5,6 +5,7 @@ const {
     getUsersNotConnected,
     getMe,
     getUser,
+    getMutualFriends,
     registerUser,
     loginUser,
     updateUser
@@ -23,6 +24,8 @@ router.get('/notconnect', getUsersNotConnected);
 router.get('/me', protect, getMe);
 
 router.get('/:userId', getUser);
+
+router.get('/mutualfriends/:userId/:groupId', getMutualFriends)
 
 router.post('/', registerUser);
 

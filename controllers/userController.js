@@ -99,6 +99,23 @@ const getUser = asyncHandler(async (req, res) => {
     res.status(200).json(user);
 })
 
+// get mutual friends within a group
+const getMutualFriends = asyncHandler(async (req, res) => {
+    const { userId, groupId } = req.params;
+    try {
+        const user = await User.findById(userId);
+        const userConnections = user.connections.map(connection => connection.toString());
+
+        const groupMembers = await User.find({ groups: { $in: [groupId] } }).lean();
+
+        const mutualFriends = groupMembers.filter(member => userConnections.includes(member._id.toString()));
+
+        res.status(200).json(mutualFriends);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+})
+
 // register a new user 
 const registerUser = asyncHandler(async (req, res) => {
     const { name, email, password } = req.body;
@@ -191,6 +208,7 @@ module.exports = {
     getUsersNotConnected,
     getMe,
     getUser,
+    getMutualFriends,
     registerUser,
     loginUser,
     updateUser
