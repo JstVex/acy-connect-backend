@@ -7,6 +7,17 @@ const getGroups = async (req, res) => {
     res.status(200).json(groups);
 }
 
+// get a single group by id
+const getGroup = async (req, res) => {
+    const { groupId } = req.params;
+
+    const group = await Group.findById({
+        _id: groupId
+    }).populate('members').populate('owner');
+
+    res.status(200).json(group);
+}
+
 // create a new group 
 const createGroup = async (req, res) => {
     const { title, description, owner, time, date, place, groupLink, members, events } = req.body;
@@ -57,6 +68,7 @@ const userJoinGroup = async (req, res) => {
 
 module.exports = {
     getGroups,
+    getGroup,
     createGroup,
     userJoinGroup
 }

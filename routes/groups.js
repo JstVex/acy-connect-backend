@@ -1,6 +1,7 @@
 const express = require('express');
 const {
     getGroups,
+    getGroup,
     createGroup,
     userJoinGroup
 } = require("../controllers/groupController");
@@ -8,6 +9,8 @@ const {
 const router = express();
 
 router.get('/', getGroups);
+
+router.get('/:groupId', getGroup);
 
 router.post('/', createGroup);
 
