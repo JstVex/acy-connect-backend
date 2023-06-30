@@ -7,7 +7,7 @@ const cors = require('cors');
 const groupsRoutes = require('./routes/groups');
 const usersRoutes = require('./routes/users');
 const connectionsRoutes = require('./routes/connections');
-// const eventsRoutes = require('./routes/events');
+const eventsRoutes = require('./routes/events');
 
 const app = express();
 
@@ -25,7 +25,7 @@ app.use(express.json());
 app.use('/groups', groupsRoutes);
 app.use('/users', usersRoutes);
 app.use('/connections', connectionsRoutes);
-// app.use('/events', eventsRoutes);
+app.use('/events', eventsRoutes);
 
 mongoose.connect(process.env.MONGO_URI)
     .then(() => {
