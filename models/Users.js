@@ -38,6 +38,10 @@ const userSchema = new Schema({
     connections: [{
         type: Schema.Types.ObjectId,
         ref: "Connection"
+    }],
+    events: [{
+        type: Schema.Types.ObjectId,
+        ref: "Event"
     }]
 }, {
     timestamps: true
