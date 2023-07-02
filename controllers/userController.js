@@ -79,7 +79,7 @@ const getUsersNotConnected = async (req, res) => {
 // get current user
 const getMe = asyncHandler(async (req, res) => {
     // const { _id, name, email, image, fblink, hobbies, activeDay, groups } = await User.findById(req.user.id);
-    const user = await User.findById(req.user.id).populate('groups');
+    const user = await User.findById(req.user.id).populate('groups').populate('events');
     // res.status(200).json({
     //     id: _id,
     //     name,
