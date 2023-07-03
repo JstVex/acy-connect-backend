@@ -3,7 +3,7 @@ const User = require("../models/Users");
 
 // get all groups
 const getGroups = async (req, res) => {
-    const groups = await Group.find({});
+    const groups = await Group.find({}).populate('owner').populate('events');
     res.status(200).json(groups);
 }
 
