@@ -18,6 +18,29 @@ const getGroup = async (req, res) => {
     res.status(200).json(group);
 }
 
+// get groups that user haven't joined yet
+const getUnjoinedGroups = async (req, res) => {
+    const { userId } = req.params;
+
+    try {
+        const user = await User.findById(userId);
+
+        const userGroups = user.groups.map(group => group.toString());
+        console.log('userGroups', userGroups)
+
+        const unjoinedGroups = await Group.find(
+            {
+                _id: { $nin: userGroups }
+            }).populate('owner').populate('events');
+        console.log('unjoined groups', unjoinedGroups)
+
+        res.status(200).json(unjoinedGroups);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+
+}
+
 // create a new group 
 const createGroup = async (req, res) => {
     const { title, description, owner, time, date, place, groupLink, members, events } = req.body;
@@ -69,6 +92,7 @@ const userJoinGroup = async (req, res) => {
 module.exports = {
     getGroups,
     getGroup,
+    getUnjoinedGroups,
     createGroup,
     userJoinGroup
 }
