@@ -195,6 +195,84 @@ const updateUser = asyncHandler(async (req, res) => {
     }
 })
 
+// sending a connection request
+const sendConnectionRequest = asyncHandler(async (req, res) => {
+    const { senderId, recipientId } = req.body;
+
+    try {
+        const existingNotification = await User.findOne({
+            _id: recipientId,
+            notifications: {
+                $elemMatch: {
+                    type: 'connection_request',
+                    sender: senderId,
+                    recipient: recipientId,
+                }
+            }
+        });
+
+        if (existingNotification) {
+            res.status(200).json(existingNotification);
+        } else {
+            const notification = {
+                type: 'connection_request',
+                content: 'User wants to connect with you. Approve or decline?',
+                sender: senderId,
+                recipient: recipientId,
+            };
+
+            const connectionNoti = await User.findByIdAndUpdate(recipientId, {
+                $push: { notifications: notification }
+            }, {
+                new: true
+            });
+            res.status(200).json(connectionNoti)
+        }
+    } catch (error) {
+        res.status(400).json({ error: error.message })
+    }
+})
+
+// sending group invitation
+const sendGroupInvitation = asyncHandler(async (req, res) => {
+    const { senderId, recipientId, groupId } = req.body;
+
+    try {
+        const existingNotification = await User.findOne({
+            _id: recipientId,
+            notifications: {
+                $elemMatch: {
+                    type: 'group_invitation',
+                    sender: senderId,
+                    recipient: recipientId,
+                    group: groupId
+                }
+            }
+        });
+
+        if (existingNotification) {
+            res.status(200).json(existingNotification);
+        } else {
+            const notification = {
+                type: 'group_invitation',
+                content: `User wants you to join Group '${groupId}'. Do you want to join?`,
+                sender: senderId,
+                recipient: recipientId,
+                group: groupId
+            };
+
+            const groupInvitationNoti = await User.findByIdAndUpdate(recipientId, {
+                $push: { notifications: notification }
+            }, {
+                new: true
+            });
+            res.status(200).json(groupInvitationNoti)
+        }
+    } catch (error) {
+        res.status(400).json({ error: error.message })
+    }
+})
+
 // generating json web token
 const generateToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -211,5 +289,7 @@ module.exports = {
     getMutualFriends,
     registerUser,
     loginUser,
+    sendConnectionRequest,
+    sendGroupInvitation,
     updateUser
 }
