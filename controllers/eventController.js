@@ -36,7 +36,23 @@ const createEvent = async (req, res) => {
             $addToSet: { events: event._id }
         },
             { new: true }
-        );
+        ).populate('members');
+
+        const notifyingMembers = updatedGroup.members.forEach(async (member) => {
+            const notification = {
+                type: 'event_notifying',
+                content: `A new event "${event.title}" has been created in the group "${updatedGroup.title}". Do you want to join?`,
+                recipient: member._id,
+                event: event._id,
+            };
+
+            await User.findOneAndUpdate(
+                { _id: member._id },
+                { $push: { notifications: notification } }
+            );
+        })
+
+        await Promise.all(notifyingMembers);
 
         res.status(200).json(event)
     } catch (error) {
