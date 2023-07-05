@@ -42,7 +42,45 @@ const userSchema = new Schema({
     events: [{
         type: Schema.Types.ObjectId,
         ref: "Event"
-    }]
+    }],
+    notifications: [
+        {
+            type: {
+                type: String,
+                required: true,
+            },
+            content: {
+                type: String,
+                required: true,
+            },
+            sender: {
+                type: Schema.Types.ObjectId,
+                ref: 'User',
+            },
+            recipient: {
+                type: Schema.Types.ObjectId,
+                ref: 'User',
+                required: true
+            },
+            group: {
+                type: Schema.Types.ObjectId,
+                ref: 'Group'
+            },
+            event: {
+                type: Schema.Types.ObjectId,
+                ref: 'Event'
+            },
+            status: {
+                type: String,
+                enum: ['unread', 'read', 'approved', 'declined'],
+                default: 'unread',
+            },
+            createdAt: {
+                type: Date,
+                default: Date.now,
+            }
+        }
+    ]
 }, {
     timestamps: true
 })
