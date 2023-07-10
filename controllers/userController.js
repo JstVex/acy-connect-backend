@@ -283,6 +283,39 @@ const sendGroupInvitation = asyncHandler(async (req, res) => {
     }
 })
 
+// mark a notification as read
+const markNotificationAsRead = asyncHandler(async (req, res) => {
+    const { notificationId } = req.params;
+
+    try {
+        const updatedUser = await User.findOneAndUpdate(
+            { 'notifications._id': notificationId },
+            { $set: { 'notifications.$.status': 'read' } },
+            { new: true }
+        );
+
+        res.status(200).json(updatedUser);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+// removing notification 
+const removeNotification = asyncHandler(async (req, res) => {
+    const { notificationId } = req.params;
+    const { userId } = req.body;
+
+    try {
+        const updatedUser = await User.findByIdAndUpdate(userId, {
+            $pull: { notifications: { _id: notificationId } }
+        }, { new: true });
+
+        res.status(200).json(updatedUser);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+})
+
 // generating json web token
 const generateToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -301,5 +334,7 @@ module.exports = {
     loginUser,
     sendConnectionRequest,
     sendGroupInvitation,
+    markNotificationAsRead,
+    removeNotification,
     updateUser
 }
