@@ -103,7 +103,7 @@ const getAllConnectionsForCurrentUser = async (req, res) => {
 // }
 
 const createConnection = async (req, res) => {
-    const { user1Id, user2Id } = req.body;
+    const { user1Id, user2Id, notificationId } = req.body;
 
     try {
 
@@ -131,6 +131,10 @@ const createConnection = async (req, res) => {
         await User.findByIdAndUpdate(user2Id, {
             $addToSet: { connections: user1Id }
         });
+
+        await User.findByIdAndUpdate(user1Id, {
+            $pull: { notifications: { _id: notificationId } }
+        }, { new: true });
 
         res.status(201).json(connection);
     } catch (error) {
