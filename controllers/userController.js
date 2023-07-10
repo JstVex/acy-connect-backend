@@ -1,8 +1,10 @@
 const User = require("../models/Users");
+const Group = require("../models/Groups");
 const Connection = require("../models/Connections")
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const asyncHandler = require('express-async-handler');
+const mongoose = require('mongoose')
 
 // get all users
 const getUsers = asyncHandler(async (req, res) => {
@@ -214,9 +216,13 @@ const sendConnectionRequest = asyncHandler(async (req, res) => {
         if (existingNotification) {
             res.status(200).json(existingNotification);
         } else {
+            const sender = await User.findById(senderId);
+            const recipient = await User.findById(recipientId);
+
             const notification = {
+                _id: new mongoose.Types.ObjectId(),
                 type: 'connection_request',
-                content: 'User wants to connect with you. Approve or decline?',
+                content: `${sender.name} wants to connect with you`,
                 sender: senderId,
                 recipient: recipientId,
             };
@@ -225,7 +231,7 @@ const sendConnectionRequest = asyncHandler(async (req, res) => {
                 $push: { notifications: notification }
             }, {
                 new: true
-            });
+            }).populate('notifications.sender notifications.recipient');
             res.status(200).json(connectionNoti)
         }
     } catch (error) {
@@ -253,9 +259,13 @@ const sendGroupInvitation = asyncHandler(async (req, res) => {
         if (existingNotification) {
             res.status(200).json(existingNotification);
         } else {
+            const sender = await User.findById(senderId);
+            const group = await Group.findById(groupId);
+
             const notification = {
+                _id: new mongoose.Types.ObjectId(),
                 type: 'group_invitation',
-                content: `User wants you to join Group '${groupId}'. Do you want to join?`,
+                content: `${sender.name} wants you to join Group '${group.title}'. Do you want to join?`,
                 sender: senderId,
                 recipient: recipientId,
                 group: groupId
@@ -265,7 +275,7 @@ const sendGroupInvitation = asyncHandler(async (req, res) => {
                 $push: { notifications: notification }
             }, {
                 new: true
-            });
+            }).populate('notifications.sender notifications.group');
             res.status(200).json(groupInvitationNoti)
         }
     } catch (error) {
