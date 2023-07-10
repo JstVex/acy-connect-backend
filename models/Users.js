@@ -45,6 +45,10 @@ const userSchema = new Schema({
     }],
     notifications: [
         {
+            _id: {
+                type: Schema.Types.ObjectId,
+                required: true,
+            },
             type: {
                 type: String,
                 required: true,
