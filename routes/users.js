@@ -10,6 +10,8 @@ const {
     loginUser,
     sendConnectionRequest,
     sendGroupInvitation,
+    markNotificationAsRead,
+    removeNotification,
     updateUser
 } = require("../controllers/userController");
 
@@ -36,6 +38,10 @@ router.post('/login', loginUser);
 router.patch('/friendrequest', sendConnectionRequest);
 
 router.patch('/groupinvitation', sendGroupInvitation);
+
+router.patch('/notifications/markasread/:notificationId', markNotificationAsRead);
+
+router.delete('/notifications/:notificationId', removeNotification);
 
 router.patch('/me', updateUser);
 
