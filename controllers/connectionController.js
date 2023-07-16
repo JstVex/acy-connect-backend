@@ -125,11 +125,11 @@ const createConnection = async (req, res) => {
         });
 
         await User.findByIdAndUpdate(user1Id, {
-            $addToSet: { connections: user2Id }
+            $addToSet: { connections: connection._id }
         });
 
         await User.findByIdAndUpdate(user2Id, {
-            $addToSet: { connections: user1Id }
+            $addToSet: { connections: connection._id }
         });
 
         await User.findByIdAndUpdate(user1Id, {
