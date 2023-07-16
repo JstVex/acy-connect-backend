@@ -31,18 +31,15 @@ const getUsersNotConnected = async (req, res) => {
     try {
         // Find the current user
         const currentUser = await User.findById(userId);
-        console.log('currentuser is', currentUser)
 
         // Get the IDs of the users the current user has already connected with
         const connectedUserIds = currentUser.connections.map(connection => connection.toString());
-        console.log('connetedUserIds', connectedUserIds)
 
         // Find all users who are not in the connectedUserIds array
         const unconnectedUsers = await User.find({
-            _id: { $nin: [userId, ...connectedUserIds] }
-        });
-
-        console.log('unconnectedusers', unconnectedUsers)
+            connections: { $nin: connectedUserIds },
+            _id: { $ne: userId }
+        }).populate('connections');
 
         res.status(200).json(unconnectedUsers);
     } catch (error) {
@@ -81,7 +78,12 @@ const getUsersNotConnected = async (req, res) => {
 // get current user
 const getMe = asyncHandler(async (req, res) => {
     // const { _id, name, email, image, fblink, hobbies, activeDay, groups } = await User.findById(req.user.id);
-    const user = await User.findById(req.user.id).populate('groups').populate('events');
+    const user = await User.findById(req.user.id).populate('groups').populate('events').populate({
+        path: 'connections',
+        populate: {
+            path: 'user1 user2'
+        },
+    });
     // res.status(200).json({
     //     id: _id,
     //     name,
@@ -108,9 +110,14 @@ const getMutualFriends = asyncHandler(async (req, res) => {
         const user = await User.findById(userId);
         const userConnections = user.connections.map(connection => connection.toString());
 
-        const groupMembers = await User.find({ groups: { $in: [groupId] } }).lean();
+        const groupMembers = await User.find({ groups: { $in: [groupId] }, _id: { $ne: userId } }).lean();
 
-        const mutualFriends = groupMembers.filter(member => userConnections.includes(member._id.toString()));
+        const mutualFriends = groupMembers.filter(member =>
+            userConnections.includes(member._id.toString()) ||
+            member.connections.some(connection =>
+                userConnections.includes(connection.toString())
+            )
+        );
 
         res.status(200).json(mutualFriends);
     } catch (error) {
