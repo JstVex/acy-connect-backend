@@ -1,10 +1,11 @@
 const Event = require("../models/Events");
 const Group = require("../models/Groups");
 const User = require("../models/Users");
+const mongoose = require('mongoose');
 
 // get all events
 const getEvents = async (req, res) => {
-    const events = await Event.find({});
+    const events = await Event.find({}).populate('group').populate('participants');
     res.status(200).json(events);
 }
 
@@ -15,7 +16,8 @@ const getEventsForGroup = async (req, res) => {
     try {
         const events = await Event.find({
             group: groupId
-        })
+        }).populate('group').populate('participants')
+
         res.status(200).json(events);
 
     } catch (error) {
@@ -40,8 +42,9 @@ const createEvent = async (req, res) => {
 
         const notifyingMembers = updatedGroup.members.forEach(async (member) => {
             const notification = {
+                _id: new mongoose.Types.ObjectId(),
                 type: 'event_notifying',
-                content: `A new event "${event.title}" has been created in the group "${updatedGroup.title}". Do you want to join?`,
+                content: `A new event "${event.title}" has been created in the group "${updatedGroup.title}"`,
                 recipient: member._id,
                 event: event._id,
             };
@@ -136,7 +139,7 @@ const getEventsForAllGroups = async (req, res) => {
                 _id: { $nin: participatedEventIds },
                 group: { $in: groupIds }
             }
-        );
+        ).populate('group').populate('participants');
 
         res.status(200).json(events);
     } catch (error) {
