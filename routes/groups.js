@@ -4,7 +4,8 @@ const {
     getGroup,
     getUnjoinedGroups,
     createGroup,
-    userJoinGroup
+    userJoinGroup,
+    userLeaveGroup
 } = require("../controllers/groupController");
 
 const router = express();
@@ -17,6 +18,8 @@ router.get('/unjoined/:userId', getUnjoinedGroups)
 
 router.post('/', createGroup);
 
-router.post('/join', userJoinGroup);
+router.patch('/join', userJoinGroup);
+
+router.delete('/leave', userLeaveGroup);
 
 module.exports = router;

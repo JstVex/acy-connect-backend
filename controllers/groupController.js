@@ -89,10 +89,39 @@ const userJoinGroup = async (req, res) => {
     }
 }
 
+// update when a user left
+const userLeaveGroup = async (req, res) => {
+    const { user, id } = req.body;
+
+    try {
+        const updatedGroup = await Group.findOneAndUpdate({
+            _id: id
+        }, {
+            $pull: { members: user }
+        },
+            { new: true }
+        )
+
+        const updatedUser = await User.findOneAndUpdate({
+            _id: user
+        }, {
+            $pull: { groups: id }
+        },
+            { new: true }
+        )
+
+        res.status(200).json({ updatedGroup, updatedUser });
+
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+}
+
 module.exports = {
     getGroups,
     getGroup,
     getUnjoinedGroups,
     createGroup,
-    userJoinGroup
+    userJoinGroup,
+    userLeaveGroup
 }
