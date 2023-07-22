@@ -46,49 +46,25 @@ const getUsersNotConnected = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 }
-// const getUsersNotConnected = async (req, res) => {
-//     const userId = req.query.userId;
-
-//     try { 
-//         const user = await User.findById(userId).p
-//         console.log('user is', user)
-
-//         const connections = await Connection.findOne({
-//             user: userId
-//         }).populate('connections');
-//         console.log('connections', connections)
-
-//         // Get the IDs of the connected users
-//         // const connectedUserIds = user.connections.map((connection) => connection.users);
-//         const connectedUserIds = await connections.map((connection) => connection._id).populate('users');
-//         console.log('connected users are', connectedUserIds)
-
-//         // Find all users who are not connected to the current user
-//         const usersNotConnected = await User.find({
-//             _id: { $ne: userId },
-//             connections: { $nin: connectedUserIds },
-//         });
-
-//         res.status(200).json(usersNotConnected);
-//     } catch (error) {
-//         res.status(500).json({ error: error.message });
-//     }
-// }
 
 // get current user
 const getMe = asyncHandler(async (req, res) => {
-    // const { _id, name, email, image, fblink, hobbies, activeDay, groups } = await User.findById(req.user.id);
-    const user = await User.findById(req.user.id).populate('groups').populate('events').populate({
-        path: 'connections',
-        populate: {
-            path: 'user1 user2'
-        },
-    });
-    // res.status(200).json({
-    //     id: _id,
-    //     name,
-    //     email
-    // });
+    const user = await User.findById(req.user.id)
+        .populate('groups')
+        .populate({
+            path: 'events',
+            populate: [
+                { path: 'group' },
+                { path: 'participants' }
+            ]
+        })
+        .populate({
+            path: 'connections',
+            populate: [
+                { path: 'user1' },
+                { path: 'user2' }
+            ]
+        });
     res.status(200).json(user);
 })
 
