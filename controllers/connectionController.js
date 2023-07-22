@@ -1,34 +1,6 @@
 const Connection = require("../models/Connections");
 const User = require("../models/Users");
 
-// get all connections except target user
-const getAllConnections = async (req, res) => {
-    const { userId } = req.params;
-
-    try {
-        const connections = await Connection.find({ user: { $ne: userId } }).populate('connections', 'name');
-        res.status(200).json(connections);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-}
-
-// get all connections for current user
-
-// const getAllConnectionsForCurrentUser = async (req, res) => {
-//     const { userId } = req.params;
-
-//     try {
-//         const connections = await Connection.findOne({
-//             user: userId
-//         }).populate('connections');
-
-//         res.status(200).json(connections);
-//     } catch (error) {
-//         res.status(500).json({ error: error.message });
-//     }
-// }
-
 const getAllConnectionsForCurrentUser = async (req, res) => {
     const { userId } = req.params;
 
@@ -54,59 +26,34 @@ const getAllConnectionsForCurrentUser = async (req, res) => {
     }
 }
 
+// get connection between two users
+const getConnectionBetweenTwoUsers = async (req, res) => {
+    const { user1Id, user2Id } = req.params;
 
-// create a new connection 
+    try {
+        const connection = await Connection.findOne({
+            $or: [
+                {
+                    user1: user1Id,
+                    user2: user2Id
+                }
+                , {
+                    user1: user2Id,
+                    user2: user1Id
+                }
+            ]
+        }).populate("user1").populate("user2")
+        res.status(200).json(connection);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}
 
-// const createConnection = async (req, res) => {
-//     const { userId, connectionId } = req.body;
-
-//     const connectionExists = await Connection.findOne({ user: userId })
-
-//     if (connectionExists) {
-//         try {
-//             const updatedConnection = await Connection.findOneAndUpdate({
-//                 user: userId
-//             }, {
-//                 $addToSet: { connections: connectionId }
-//             },
-//                 { new: true }
-//             )
-
-//             await User.findByIdAndUpdate(userId, {
-//                 $addToSet: {
-//                     connections: connectionId
-//                 }
-//             })
-
-//             res.status(201).json(updatedConnection)
-//         } catch (error) {
-//             res.status(400).json({ error: error.message })
-//         }
-//     } else {
-//         try {
-//             const connection = await Connection.create({
-//                 user: userId,
-//                 connections: [connectionId]
-//             })
-
-//             await User.findByIdAndUpdate(userId, {
-//                 $addToSet: {
-//                     connections: connectionId
-//                 }
-//             })
-
-//             res.status(201).json(connection)
-//         } catch (error) {
-//             res.status(400).json({ error: error.message })
-//         }
-//     }
-// }
-
+// create a new connection between two users
 const createConnection = async (req, res) => {
     const { user1Id, user2Id, notificationId } = req.body;
 
     try {
-
         // Check if the connection already exists
         const existingConnection = await Connection.findOne({
             $or: [
@@ -142,8 +89,31 @@ const createConnection = async (req, res) => {
     }
 };
 
+// delete connection
+const deleteConnection = async (req, res) => {
+    const { connectionId } = req.params;
+    const { user1Id, user2Id } = req.body;
+
+    try {
+        await User.findByIdAndUpdate(user1Id, {
+            $pull: { connections: connectionId }
+        });
+
+        await User.findByIdAndUpdate(user2Id, {
+            $pull: { connections: connectionId }
+        });
+
+        const connection = await Connection.findByIdAndDelete(connectionId)
+
+        res.status(201).json(connection);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+}
+
 module.exports = {
-    getAllConnections,
     getAllConnectionsForCurrentUser,
-    createConnection
+    getConnectionBetweenTwoUsers,
+    createConnection,
+    deleteConnection
 }
