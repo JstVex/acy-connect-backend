@@ -158,18 +158,23 @@ const loginUser = asyncHandler(async (req, res) => {
 
 // update user's profile information
 const updateUser = asyncHandler(async (req, res) => {
-    const { profile } = req.body;
+    const { email, name, bio, fblink, hobbies, activeDay } = req.body;
 
     try {
+        let imageUrl = '';
+        if (req.file) {
+            imageUrl = req.file.path;
+        }
+
         const updatedUser = await User.findOneAndUpdate({
-            email: profile.email
+            email: email
         }, {
-            name: profile.name,
-            image: profile.image,
-            bio: profile.bio,
-            fblink: profile.fblink,
-            hobbies: profile.hobbies,
-            activeDay: profile.activeDay
+            name: name,
+            image: imageUrl,
+            bio: bio,
+            fblink: fblink,
+            hobbies: hobbies,
+            activeDay: activeDay
         }, {
             new: true
         })

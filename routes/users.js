@@ -14,6 +14,7 @@ const {
     removeNotification,
     updateUser
 } = require("../controllers/userController");
+const { upload } = require('../middleware/multer')
 
 const router = express();
 
@@ -43,6 +44,6 @@ router.patch('/notifications/markasread/:notificationId', markNotificationAsRead
 
 router.delete('/notifications/:notificationId', removeNotification);
 
-router.patch('/me', updateUser);
+router.patch('/me', upload.single('image'), updateUser);
 
 module.exports = router;
