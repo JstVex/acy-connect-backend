@@ -31,7 +31,7 @@ const getUnjoinedGroups = async (req, res) => {
         const unjoinedGroups = await Group.find(
             {
                 _id: { $nin: userGroups }
-            }).populate('owner').populate('events');
+            }).populate('owner').populate('events').populate('members');
         console.log('unjoined groups', unjoinedGroups)
 
         res.status(200).json(unjoinedGroups);

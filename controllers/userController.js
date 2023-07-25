@@ -50,7 +50,13 @@ const getUsersNotConnected = async (req, res) => {
 // get current user
 const getMe = asyncHandler(async (req, res) => {
     const user = await User.findById(req.user.id)
-        .populate('groups')
+        .populate({
+            path: 'groups',
+            populate: [
+                { path: 'owner' },
+                { path: 'members' }
+            ]
+        })
         .populate({
             path: 'events',
             populate: [
